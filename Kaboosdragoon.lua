@@ -1,7 +1,7 @@
--- سكربت جميع المابات
--- الكاتب: kaboos
+-- سكربت كابوس لروبلوكس مع واجهة تسجيل مفتاح فخمة وأنيميشن
+-- الكاتب: كابوس
 -- مستوحى من Kaboos_dragoon
--- تطوير
+-- 
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -10,6 +10,7 @@ local TweenService = game:GetService("TweenService")
 
 -- إعدادات السكربت
 local SITE_URL = "https://rxwab.github.io/Kaboos_CodeGenerator/"
+local YOUTUBE_URL = "https://www.youtube.com/@RX_MAR"
 local SCRIPT_DURATION = 600 -- 10 دقائق
 local keyActivated = false
 local scriptStartTime = os.time()
@@ -18,7 +19,7 @@ local monitoredContainers = {"leaderstats", "Data", "Stats", "PlayerData"}
 local userId = HttpService:GenerateGUID(false):gsub("-", ""):sub(1, 10) -- معرف فريد لكل مستخدم
 local userSiteUrl = SITE_URL .. "?user=" .. userId -- رابط الموقع الفريد
 
---
+-- 
 local function verifyKey(code)
     -- 
     if code:match("^FREE_[a-z0-9]+$") then
@@ -189,8 +190,8 @@ local function createFirstUI()
     Background.BackgroundTransparency = 0.6
     Background.Parent = ScreenGui
     local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 480, 0, 380)
-    Frame.Position = UDim2.new(0.5, -240, 0.5, -190)
+    Frame.Size = UDim2.new(0, 480, 0, 420)
+    Frame.Position = UDim2.new(0.5, -240, 0.5, -210)
     Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     Frame.BackgroundTransparency = 0.05
     Frame.BorderSizePixel = 0
@@ -227,34 +228,71 @@ local function createFirstUI()
     Description.BackgroundTransparency = 1
     Description.Font = Enum.Font.SourceSansBold
     Description.Parent = Frame
-    local SiteLink = Instance.new("TextLabel")
-    SiteLink.Size = UDim2.new(0.9, 0, 0, 50)
-    SiteLink.Position = UDim2.new(0.05, 0, 0, 150)
-    SiteLink.Text = "📎 رابطك الخاص للحصول على كود:\n" .. userSiteUrl
-    SiteLink.TextColor3 = Color3.fromRGB(0, 255, 0)
-    SiteLink.TextScaled = true
-    SiteLink.BackgroundTransparency = 1
-    SiteLink.Font = Enum.Font.SourceSansBold
-    SiteLink.TextWrapped = true
-    SiteLink.Parent = Frame
-    local CopyButton = Instance.new("TextButton")
-    CopyButton.Size = UDim2.new(0.2, 0, 0, 30)
-    CopyButton.Position = UDim2.new(0.75, 0, 0, 190)
-    CopyButton.Text = "نسخ"
-    CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    CopyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-    CopyButton.TextScaled = true
-    CopyButton.Font = Enum.Font.GothamBold
-    CopyButton.Parent = Frame
-    local CopyButtonCorner = Instance.new("UICorner")
-    CopyButtonCorner.CornerRadius = UDim.new(0, 8)
-    CopyButtonCorner.Parent = CopyButton
-    CopyButton.MouseButton1Click:Connect(function()
-        showNotification("📋 افتح الرابط في المتصفح للحصول على كودك! 😏", 3)
+    -- رابط اليوتيوب
+    local YoutubeLabel = Instance.new("TextLabel")
+    YoutubeLabel.Size = UDim2.new(0.9, 0, 0, 20)
+    YoutubeLabel.Position = UDim2.new(0.05, 0, 0, 140)
+    YoutubeLabel.Text = "📺 قناتنا على اليوتيوب:"
+    YoutubeLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    YoutubeLabel.TextScaled = true
+    YoutubeLabel.BackgroundTransparency = 1
+    YoutubeLabel.Font = Enum.Font.SourceSansBold
+    YoutubeLabel.Parent = Frame
+    local YoutubeLinkBox = Instance.new("TextBox")
+    YoutubeLinkBox.Size = UDim2.new(0.9, 0, 0, 30)
+    YoutubeLinkBox.Position = UDim2.new(0.05, 0, 0, 160)
+    YoutubeLinkBox.Text = YOUTUBE_URL
+    YoutubeLinkBox.TextColor3 = Color3.fromRGB(0, 255, 0)
+    YoutubeLinkBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    YoutubeLinkBox.TextScaled = true
+    YoutubeLinkBox.Font = Enum.Font.SourceSans
+    YoutubeLinkBox.TextEditable = false
+    YoutubeLinkBox.ClearTextOnFocus = false
+    YoutubeLinkBox.Parent = Frame
+    local YoutubeLinkBoxCorner = Instance.new("UICorner")
+    YoutubeLinkBoxCorner.CornerRadius = UDim.new(0, 8)
+    YoutubeLinkBoxCorner.Parent = YoutubeLinkBox
+    local YoutubeLinkBoxStroke = Instance.new("UIStroke")
+    YoutubeLinkBoxStroke.Thickness = 2
+    YoutubeLinkBoxStroke.Color = Color3.fromRGB(0, 255, 0)
+    YoutubeLinkBoxStroke.Parent = YoutubeLinkBox
+    YoutubeLinkBox.FocusLost:Connect(function()
+        showNotification("📋 اضغط Ctrl+C لنسخ رابط اليوتيوب!", 3)
+    end)
+    -- رابط الموقع
+    local SiteLabel = Instance.new("TextLabel")
+    SiteLabel.Size = UDim2.new(0.9, 0, 0, 20)
+    SiteLabel.Position = UDim2.new(0.05, 0, 0, 190)
+    SiteLabel.Text = "📎 رابطك الخاص للحصول على كود:"
+    SiteLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    SiteLabel.TextScaled = true
+    SiteLabel.BackgroundTransparency = 1
+    SiteLabel.Font = Enum.Font.SourceSansBold
+    SiteLabel.Parent = Frame
+    local SiteLinkBox = Instance.new("TextBox")
+    SiteLinkBox.Size = UDim2.new(0.9, 0, 0, 30)
+    SiteLinkBox.Position = UDim2.new(0.05, 0, 0, 210)
+    SiteLinkBox.Text = userSiteUrl
+    SiteLinkBox.TextColor3 = Color3.fromRGB(0, 255, 0)
+    SiteLinkBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    SiteLinkBox.TextScaled = true
+    SiteLinkBox.Font = Enum.Font.SourceSans
+    SiteLinkBox.TextEditable = false
+    SiteLinkBox.ClearTextOnFocus = false
+    SiteLinkBox.Parent = Frame
+    local SiteLinkBoxCorner = Instance.new("UICorner")
+    SiteLinkBoxCorner.CornerRadius = UDim.new(0, 8)
+    SiteLinkBoxCorner.Parent = SiteLinkBox
+    local SiteLinkBoxStroke = Instance.new("UIStroke")
+    SiteLinkBoxStroke.Thickness = 2
+    SiteLinkBoxStroke.Color = Color3.fromRGB(0, 255, 0)
+    SiteLinkBoxStroke.Parent = SiteLinkBox
+    SiteLinkBox.FocusLost:Connect(function()
+        showNotification("📋 اضغط Ctrl+C لنسخ الرابط والصقه في المتصفح!", 3)
     end)
     local KeyInput = Instance.new("TextBox")
     KeyInput.Size = UDim2.new(0.85, 0, 0, 60)
-    KeyInput.Position = UDim2.new(0.075, 0, 0, 210)
+    KeyInput.Position = UDim2.new(0.075, 0, 0, 250)
     KeyInput.Text = ""
     KeyInput.PlaceholderText = "أدخل الكود المؤقت"
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -271,7 +309,7 @@ local function createFirstUI()
     KeyInputStroke.Parent = KeyInput
     local ActivateButton = Instance.new("TextButton")
     ActivateButton.Size = UDim2.new(0.85, 0, 0, 70)
-    ActivateButton.Position = UDim2.new(0.075, 0, 0, 280)
+    ActivateButton.Position = UDim2.new(0.075, 0, 0, 320)
     ActivateButton.Text = "تفعيل الهاك [ ]"
     ActivateButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     ActivateButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
@@ -287,7 +325,7 @@ local function createFirstUI()
     ButtonGlow.Parent = ActivateButton
     local RetryButton = Instance.new("TextButton")
     RetryButton.Size = UDim2.new(0.85, 0, 0, 50)
-    RetryButton.Position = UDim2.new(0.075, 0, 0, 360)
+    RetryButton.Position = UDim2.new(0.075, 0, 0, 400)
     RetryButton.Text = "إعادة المحاولة"
     RetryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     RetryButton.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
@@ -300,7 +338,7 @@ local function createFirstUI()
     RetryButtonCorner.Parent = RetryButton
     local StatusLabel = Instance.new("TextLabel")
     StatusLabel.Size = UDim2.new(0.85, 0, 0, 50)
-    StatusLabel.Position = UDim2.new(0.075, 0, 0, 360)
+    StatusLabel.Position = UDim2.new(0.075, 0, 0, 400)
     StatusLabel.Text = "حالة: أدخل الكود | الوقت المتبقي: 600 ث"
     StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     StatusLabel.TextScaled = true
@@ -313,8 +351,8 @@ local function createFirstUI()
         Frame.BackgroundTransparency = 1
         local tweenInfo = TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out)
         local tween = TweenService:Create(Frame, tweenInfo, {
-            Size = UDim2.new(0, 480, 0, 380),
-            Position = UDim2.new(0.5, -240, 0.5, -190),
+            Size = UDim2.new(0, 480, 0, 420),
+            Position = UDim2.new(0.5, -240, 0.5, -210),
             BackgroundTransparency = 0.05
         })
         tween:Play()
@@ -373,7 +411,7 @@ local function createFirstUI()
             RetryButton.Visible = true
             StatusLabel.Visible = false
             local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 3, true)
-            local tween = TweenService:Create(Frame, tweenInfo, {Position = UDim2.new(0.5, -230, 0.5, -190)})
+            local tween = TweenService:Create(Frame, tweenInfo, {Position = UDim2.new(0.5, -230, 0.5, -210)})
             tween:Play()
         end
     end)
