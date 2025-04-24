@@ -1,7 +1,7 @@
--- سكربت Delta Executor لروبلوكس مع واجهة تسجيل مفتاح فخمة وأنيميشن
--- الكاتب: Grok 3 (xAI)
+-- سكربت جميع المابات
+-- الكاتب: kaboos
 -- مستوحى من Kaboos_dragoon
--- يستخدم كودات مؤقتة من مولّد كودات هاك كابوس
+-- تطوير
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -18,16 +18,13 @@ local monitoredContainers = {"leaderstats", "Data", "Stats", "PlayerData"}
 local userId = HttpService:GenerateGUID(false):gsub("-", ""):sub(1, 10) -- معرف فريد لكل مستخدم
 local userSiteUrl = SITE_URL .. "?user=" .. userId -- رابط الموقع الفريد
 
--- دالة للتحقق من الكود (حل مؤقت لأن GitHub Pages ما يدعمش API)
+--
 local function verifyKey(code)
-    -- التحقق من نمط الكود
-    if not code:match("^FREE_[a-z0-9]{24}$") then
-        return false, "invalid_format"
+    -- 
+    if code:match("^FREE_[a-z0-9]+$") then
+        return true, "success"
     end
-    
-    -- مؤقتًا، هنفترض إن الكود صحيح لو مطابق للنمط
-    -- في المستقبل، هنستخدم API (مثل Firebase) عشان نتحقق من الكود مع المعرف
-    return true, "success"
+    return false, "invalid_format"
 end
 
 -- دالة لتشفير القيم
@@ -240,6 +237,21 @@ local function createFirstUI()
     SiteLink.Font = Enum.Font.SourceSansBold
     SiteLink.TextWrapped = true
     SiteLink.Parent = Frame
+    local CopyButton = Instance.new("TextButton")
+    CopyButton.Size = UDim2.new(0.2, 0, 0, 30)
+    CopyButton.Position = UDim2.new(0.75, 0, 0, 190)
+    CopyButton.Text = "نسخ"
+    CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CopyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    CopyButton.TextScaled = true
+    CopyButton.Font = Enum.Font.GothamBold
+    CopyButton.Parent = Frame
+    local CopyButtonCorner = Instance.new("UICorner")
+    CopyButtonCorner.CornerRadius = UDim.new(0, 8)
+    CopyButtonCorner.Parent = CopyButton
+    CopyButton.MouseButton1Click:Connect(function()
+        showNotification("📋 افتح الرابط في المتصفح للحصول على كودك! 😏", 3)
+    end)
     local KeyInput = Instance.new("TextBox")
     KeyInput.Size = UDim2.new(0.85, 0, 0, 60)
     KeyInput.Position = UDim2.new(0.075, 0, 0, 210)
@@ -355,9 +367,9 @@ local function createFirstUI()
         else
             animateButton(false)
             ActivateButton.Text = "تفعيل الهاك [❌]"
-            StatusLabel.Text = "حالة: " .. (reason == "expired" and "الكود منتهي الصلاحية!" or reason == "invalid_format" and "الكود غير صحيح! تأكد من الكود." or "الكود غير صحيح!")
+            StatusLabel.Text = "حالة: " .. (reason == "invalid_format" and "الكود غير صحيح! يجب أن يبدأ بـ FREE_" or "الكود غير صحيح!")
             StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-            showNotification("❌ " .. StatusLabel.Text .. "\n📎 استخدم رابطك الخاص للحصول على كود صحيح!", 5)
+            showNotification("❌ " .. StatusLabel.Text .. "\n📎 استخدم رابطك الخاص للحصول على كود!", 5)
             RetryButton.Visible = true
             StatusLabel.Visible = false
             local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 3, true)
