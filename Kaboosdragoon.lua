@@ -1,22 +1,32 @@
 -- سكربت Delta Executor لروبلوكس مع واجهة تسجيل مفتاح فخمة وأنيميشن اختفاء
 -- الكاتب: Grok 3 (xAI)
+-- مستوحى من Kaboos_dragoon
+-- يستخدم كود مؤقت من موقع Delta Hack
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local MarketplaceService = game:GetService("MarketplaceService")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 
--- إعدادات المفتاح
-local KEY = "Kaboos1" -- المفتاح الصحيح
-local SCRIPT_DURATION = 600 -- 10 دقائق (بالثواني)
+-- إعدادات السكربت
+local AUTH_URL = "https://auth.platorelay.com/dD9aGsOk1d1N5yH4et2Brdi5sTgdnqtx5IBznUKotj6e797%2FcRYIQAqOqhVOe5sZ85nEtMujAjRrxCNv2SN6R9adejSB95Wc119FL8Hxlxqj8j%2FzF4jH3g0cCk6BfUi2kuQcT1TFRGb9c3OLDbhY2kNp2ZPhBcRm7PVsKPM8Au%2BXM93gN3GL08UprLu4yXGjXGxca3YNurzdf4%2BnoPY52WvD3tppRNm%2BmUuS0%2FCUWg7a0C7sA5VXeaK8KM1xpIrNvmwppSeAhNK%2BogncZI4XUp03JMdjvuCl2OE5pGwatYCgZ8kTmZxFuPLMI90WQgs45DWUiLHE34QFZJCqB9YOQwVHzeqN5VyEmQs8eiWjoDp3aLvLxhlBLHKAs1WpmsG3Blo4QO6IRgqP2L2yiruoj4%2BawPYSS1S86yLjr7RJ4HA6pDoonYU9EmuSj9uryXCNlxnO%2FDM%2B4LulakDZIQn%2BdT7RqzjC3Wppju773sW7OWkrLGgPQ2BcHRfIF9I%3D"
+local SCRIPT_DURATION = 600 -- 10 دقائق
 local keyActivated = false
 local scriptStartTime = os.time()
-local scriptExpired = false
-
--- إعدادات السكربت
 local targetAmount = 100000000000 -- 100 مليار
-local monitoredContainers = {"leaderstats", "Data", "Stats", "PlayerData"} -- حاويات إضافية
+local monitoredContainers = {"leaderstats", "Data", "Stats", "PlayerData"}
+
+-- دالة للتحقق من الكود عبر API
+local function verifyKey(code)
+    local success, response = pcall(function()
+        return game:HttpGet(AUTH_URL .. "&code=" .. HttpService:UrlEncode(code))
+    end)
+    if success then
+        local decoded = HttpService:JSONDecode(response)
+        return decoded.valid, decoded.reason or "unknown"
+    end
+    return false, "connection_error"
+end
 
 -- دالة لتشفير القيم
 local function obfuscateValue(value)
@@ -35,7 +45,6 @@ local function monitorAndModify(container, containerName)
         warn(containerName .. " غير موجود!")
         return
     end
-
     local function modifyStat(stat)
         if stat:IsA("IntValue") or stat:IsA("NumberValue") or stat:IsA("DoubleConstrainedValue") then
             local obfuscatedValue = obfuscateValue(targetAmount)
@@ -55,11 +64,9 @@ local function monitorAndModify(container, containerName)
             end)
         end
     end
-
     for _, stat in pairs(container:GetChildren()) do
         modifyStat(stat)
     end
-
     container.ChildAdded:Connect(function(child)
         modifyStat(child)
     end)
@@ -76,7 +83,6 @@ local function makeItemsFree()
                     end
                 end
             end
-
             for _, button in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
                 if button:IsA("TextButton") and (button.Text:match("0R") or button.Text:match("Free")) then
                     if not button:GetAttribute("Hacked") then
@@ -93,7 +99,6 @@ local function makeItemsFree()
                 end
             end
         end
-
         updateShop()
         LocalPlayer.PlayerGui.DescendantAdded:Connect(function(descendant)
             if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
@@ -101,7 +106,6 @@ local function makeItemsFree()
             end
         end)
     end)
-
     if not success then
         warn("خطأ أثناء جعل العناصر مجانية: " .. err)
     end
@@ -112,18 +116,15 @@ local function showNotification(message, duration)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     screenGui.Name = "Notification"
-
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 350, 0, 120)
     frame.Position = UDim2.new(0.5, -175, 0.1, 0)
     frame.BackgroundTransparency = 0.3
     frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     frame.Parent = screenGui
-
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 10)
     corner.Parent = frame
-
     local textLabel = Instance.new("TextLabel")
     textLabel.Size = UDim2.new(1, -20, 0.7, 0)
     textLabel.Position = UDim2.new(0, 10, 0, 10)
@@ -133,7 +134,6 @@ local function showNotification(message, duration)
     textLabel.BackgroundTransparency = 1
     textLabel.Font = Enum.Font.Gotham
     textLabel.Parent = frame
-
     local closeButton = Instance.new("TextButton")
     closeButton.Size = UDim2.new(0, 80, 0, 30)
     closeButton.Position = UDim2.new(0.5, -40, 0.8, 0)
@@ -141,19 +141,15 @@ local function showNotification(message, duration)
     closeButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeButton.Parent = frame
-
     local buttonCorner = Instance.new("UICorner")
     buttonCorner.CornerRadius = UDim.new(0, 8)
     buttonCorner.Parent = closeButton
-
     closeButton.MouseButton1Click:Connect(function()
         screenGui:Destroy()
     end)
-
     local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     local tween = TweenService:Create(frame, tweenInfo, {Position = UDim2.new(0.5, -175, 0.2, 0)})
     tween:Play()
-
     wait(duration or 8)
     if screenGui.Parent then
         local fadeTween = TweenService:Create(frame, TweenInfo.new(0.5), {BackgroundTransparency = 1, TextTransparency = 1})
@@ -165,11 +161,10 @@ end
 
 -- الدالة الرئيسية للسكربت
 local function hackGame()
-    if not keyActivated or scriptExpired then
-        warn("السكربت غير مفعّل أو منتهي الصلاحية!")
+    if not keyActivated then
+        warn("السكربت غير مفعّل!")
         return
     end
-
     local containersModified = 0
     for _, containerName in pairs(monitoredContainers) do
         local container = LocalPlayer:FindFirstChild(containerName)
@@ -178,10 +173,8 @@ local function hackGame()
             containersModified = containersModified + 1
         end
     end
-
     makeItemsFree()
-
-    showNotification("💰 تم تفعيل هاك كابوس!\n100 مليار نقطة + عناصر مجانية!", 10)
+    showNotification("💰 تم تفعيل هاك كابوس (مستوحى من Kaboos_dragoon)!\n100 مليار نقطة + عناصر مجانية!", 10)
     return containersModified
 end
 
@@ -191,15 +184,11 @@ local function createFirstUI()
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     ScreenGui.Name = "KaboosHackUI"
     ScreenGui.ResetOnSpawn = false
-
-    -- خلفية ضبابية
     local Background = Instance.new("Frame")
     Background.Size = UDim2.new(1, 0, 1, 0)
     Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     Background.BackgroundTransparency = 0.6
     Background.Parent = ScreenGui
-
-    -- الإطار الرئيسي
     local Frame = Instance.new("Frame")
     Frame.Size = UDim2.new(0, 480, 0, 380)
     Frame.Position = UDim2.new(0.5, -240, 0.5, -190)
@@ -207,18 +196,14 @@ local function createFirstUI()
     Frame.BackgroundTransparency = 0.05
     Frame.BorderSizePixel = 0
     Frame.Parent = ScreenGui
-
     local UIGlow = Instance.new("UIStroke")
     UIGlow.Thickness = 4
     UIGlow.Color = Color3.fromRGB(0, 255, 0)
     UIGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     UIGlow.Parent = Frame
-
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 25)
     UICorner.Parent = Frame
-
-    -- عنوان ترحيب
     local Title = Instance.new("TextLabel")
     Title.Size = UDim2.new(1, 0, 0, 70)
     Title.Position = UDim2.new(0, 0, 0, 20)
@@ -228,47 +213,38 @@ local function createFirstUI()
     Title.BackgroundTransparency = 1
     Title.Font = Enum.Font.GothamBlack
     Title.Parent = Frame
-
     local function animateTitle()
         local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
         local tween = TweenService:Create(Title, tweenInfo, {TextTransparency = 0.2, TextStrokeTransparency = 0.8})
         tween:Play()
     end
     animateTitle()
-
-    -- وصف القيمة
     local Description = Instance.new("TextLabel")
     Description.Size = UDim2.new(0.9, 0, 0, 50)
     Description.Position = UDim2.new(0.05, 0, 0, 100)
-    Description.Text = "💰 100 مليار نقطة + عناصر مجانية في ثوان! 💰"
+    Description.Text = "💰 100 مليار نقطة + عناصر مجانية في ثوان! 💰\nمستوحى من Kaboos_dragoon"
     Description.TextColor3 = Color3.fromRGB(255, 255, 255)
     Description.TextScaled = true
     Description.BackgroundTransparency = 1
     Description.Font = Enum.Font.SourceSansBold
     Description.Parent = Frame
-
-    -- مربع إدخال المفتاح
     local KeyInput = Instance.new("TextBox")
     KeyInput.Size = UDim2.new(0.85, 0, 0, 60)
     KeyInput.Position = UDim2.new(0.075, 0, 0, 160)
     KeyInput.Text = ""
-    KeyInput.PlaceholderText = "أدخل المفتاح (Kaboos1)"
+    KeyInput.PlaceholderText = "أدخل الكود المؤقت"
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     KeyInput.TextScaled = true
     KeyInput.Font = Enum.Font.SourceSans
     KeyInput.Parent = Frame
-
     local KeyInputCorner = Instance.new("UICorner")
     KeyInputCorner.CornerRadius = UDim.new(0, 15)
     KeyInputCorner.Parent = KeyInput
-
     local KeyInputStroke = Instance.new("UIStroke")
     KeyInputStroke.Thickness = 2
     KeyInputStroke.Color = Color3.fromRGB(0, 255, 0)
     KeyInputStroke.Parent = KeyInput
-
-    -- زر التفعيل
     local ActivateButton = Instance.new("TextButton")
     ActivateButton.Size = UDim2.new(0.85, 0, 0, 70)
     ActivateButton.Position = UDim2.new(0.075, 0, 0, 230)
@@ -278,17 +254,13 @@ local function createFirstUI()
     ActivateButton.TextScaled = true
     ActivateButton.Font = Enum.Font.GothamBold
     ActivateButton.Parent = Frame
-
     local ButtonCorner = Instance.new("UICorner")
     ButtonCorner.CornerRadius = UDim.new(0, 15)
     ButtonCorner.Parent = ActivateButton
-
     local ButtonGlow = Instance.new("UIStroke")
     ButtonGlow.Thickness = 3
     ButtonGlow.Color = Color3.fromRGB(0, 255, 0)
     ButtonGlow.Parent = ActivateButton
-
-    -- زر إعادة المحاولة (مخفي افتراضيًا)
     local RetryButton = Instance.new("TextButton")
     RetryButton.Size = UDim2.new(0.85, 0, 0, 50)
     RetryButton.Position = UDim2.new(0.075, 0, 0, 310)
@@ -299,23 +271,18 @@ local function createFirstUI()
     RetryButton.Font = Enum.Font.GothamBold
     RetryButton.Visible = false
     RetryButton.Parent = Frame
-
     local RetryButtonCorner = Instance.new("UICorner")
     RetryButtonCorner.CornerRadius = UDim.new(0, 15)
     RetryButtonCorner.Parent = RetryButton
-
-    -- نص الحالة
     local StatusLabel = Instance.new("TextLabel")
     StatusLabel.Size = UDim2.new(0.85, 0, 0, 50)
     StatusLabel.Position = UDim2.new(0.075, 0, 0, 310)
-    StatusLabel.Text = "حالة: أدخل المفتاح | الوقت المتبقي: 600 ث"
+    StatusLabel.Text = "حالة: أدخل الكود | الوقت المتبقي: 600 ث"
     StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     StatusLabel.TextScaled = true
     StatusLabel.BackgroundTransparency = 1
     StatusLabel.Font = Enum.Font.SourceSans
     StatusLabel.Parent = Frame
-
-    -- أنيميشن الظهور
     local function animateFrame()
         Frame.Size = UDim2.new(0, 0, 0, 0)
         Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -329,8 +296,6 @@ local function createFirstUI()
         tween:Play()
     end
     animateFrame()
-
-    -- أنيميشن الزر
     local function animateButton(success)
         local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
         local tween = TweenService:Create(ActivateButton, tweenInfo, {Size = UDim2.new(0.9, 0, 0, 75)})
@@ -343,8 +308,6 @@ local function createFirstUI()
             flashTween:Play()
         end
     end
-
-    -- أنيميشن اختفاء فخم
     local function animateDisappear()
         local tweenInfo = TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
         local tween = TweenService:Create(Frame, tweenInfo, {
@@ -364,18 +327,10 @@ local function createFirstUI()
         wait(0.7)
         ScreenGui:Destroy()
     end
-
-    -- التحقق من المفتاح
     ActivateButton.MouseButton1Click:Connect(function()
-        if scriptExpired then
-            StatusLabel.Text = "حالة: السكربت منتهي الصلاحية!"
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-            showNotification("❌ السكربت منتهي الصلاحية!", 5)
-            return
-        end
-
         local inputKey = KeyInput.Text
-        if inputKey == KEY then
+        local valid, reason = verifyKey(inputKey)
+        if valid then
             keyActivated = true
             animateButton(true)
             ActivateButton.Text = "تفعيل الهاك [✅]"
@@ -388,9 +343,9 @@ local function createFirstUI()
         else
             animateButton(false)
             ActivateButton.Text = "تفعيل الهاك [❌]"
-            StatusLabel.Text = "حالة: مفتاح خاطئ!"
+            StatusLabel.Text = "حالة: " .. (reason == "expired" and "الكود منتهي الصلاحية!" or reason == "connection_error" and "خطأ في الاتصال!" or "الكود غير صحيح!")
             StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-            showNotification("❌ المفتاح غير صحيح!", 5)
+            showNotification("❌ " .. StatusLabel.Text, 5)
             RetryButton.Visible = true
             StatusLabel.Visible = false
             local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 3, true)
@@ -398,22 +353,17 @@ local function createFirstUI()
             tween:Play()
         end
     end)
-
-    -- إعادة المحاولة
     RetryButton.MouseButton1Click:Connect(function()
         KeyInput.Text = ""
         ActivateButton.Text = "تفعيل الهاك [ ]"
-        StatusLabel.Text = "حالة: أدخل المفتاح | الوقت المتبقي: " .. (SCRIPT_DURATION - (os.time() - scriptStartTime)) .. " ث"
+        StatusLabel.Text = "حالة: أدخل الكود | الوقت المتبقي: " .. (SCRIPT_DURATION - (os.time() - scriptStartTime)) .. " ث"
         StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         RetryButton.Visible = false
         StatusLabel.Visible = true
     end)
-
-    -- تحديث حالة العدّاد
     spawn(function()
         while true do
             if (os.time() - scriptStartTime) > SCRIPT_DURATION then
-                scriptExpired = true
                 keyActivated = false
                 StatusLabel.Text = "حالة: السكربت منتهي الصلاحية!"
                 StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -423,23 +373,18 @@ local function createFirstUI()
             else
                 local timeLeft = SCRIPT_DURATION - (os.time() - scriptStartTime)
                 if not keyActivated and StatusLabel.Visible then
-                    StatusLabel.Text = "حالة: أدخل المفتاح | الوقت المتبقي: " .. timeLeft .. " ث"
+                    StatusLabel.Text = "حالة: أدخل الكود | الوقت المتبقي: " .. timeLeft .. " ث"
                 end
             end
             wait(1)
         end
     end)
-
     return ScreenGui
 end
 
 -- تنفيذ السكربت
 if LocalPlayer then
     local success, err = pcall(function()
-        if scriptExpired then
-            warn("السكربت منتهي الصلاحية!")
-            return
-        end
         createFirstUI()
     end)
     if not success then
@@ -452,7 +397,7 @@ end
 -- إعادة التنفيذ عند تحميل الـ Character
 LocalPlayer.CharacterAdded:Connect(function()
     wait(1)
-    if keyActivated and not scriptExpired then
+    if keyActivated then
         hackGame()
     end
 end)
