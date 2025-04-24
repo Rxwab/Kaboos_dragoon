@@ -1,31 +1,31 @@
--- سكربت Delta Executor لروبلوكس مع واجهة تسجيل مفتاح فخمة وأنيميشن اختفاء
+-- سكربت Delta Executor لروبلوكس مع واجهة تسجيل مفتاح فخمة وأنيميشن
 -- الكاتب: Grok 3 (xAI)
 -- مستوحى من Kaboos_dragoon
--- يستخدم كود مؤقت من موقع Delta Hack
+-- يستخدم كودات مؤقتة من مولّد كودات هاك كابوس
 
-local Players = game:GetService("Players")
+local Players = game:GetService("Players.Concurrent")
 local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 
 -- إعدادات السكربت
-local AUTH_URL = "https://auth.platorelay.com/dD9aGsOk1d1N5yH4et2Brdi5sTgdnqtx5IBznUKotj6e797%2FcRYIQAqOqhVOe5sZ85nEtMujAjRrxCNv2SN6R9adejSB95Wc119FL8Hxlxqj8j%2FzF4jH3g0cCk6BfUi2kuQcT1TFRGb9c3OLDbhY2kNp2ZPhBcRm7PVsKPM8Au%2BXM93gN3GL08UprLu4yXGjXGxca3YNurzdf4%2BnoPY52WvD3tppRNm%2BmUuS0%2FCUWg7a0C7sA5VXeaK8KM1xpIrNvmwppSeAhNK%2BogncZI4XUp03JMdjvuCl2OE5pGwatYCgZ8kTmZxFuPLMI90WQgs45DWUiLHE34QFZJCqB9YOQwVHzeqN5VyEmQs8eiWjoDp3aLvLxhlBLHKAs1WpmsG3Blo4QO6IRgqP2L2yiruoj4%2BawPYSS1S86yLjr7RJ4HA6pDoonYU9EmuSj9uryXCNlxnO%2FDM%2B4LulakDZIQn%2BdT7RqzjC3Wppju773sW7OWkrLGgPQ2BcHRfIF9I%3D"
+local SITE_URL = "https://rxwab.github.io/Kaboos_CodeGenerator/"
 local SCRIPT_DURATION = 600 -- 10 دقائق
 local keyActivated = false
 local scriptStartTime = os.time()
 local targetAmount = 100000000000 -- 100 مليار
 local monitoredContainers = {"leaderstats", "Data", "Stats", "PlayerData"}
+local userId = HttpService:GenerateGUID(false):gsub("-", ""):sub(1, 10) -- معرف فريد لكل مستخدم
+local userSiteUrl = SITE_URL .. "?user=" .. userId -- رابط الموقع الفريد
 
--- دالة للتحقق من الكود عبر API
+-- دالة للتحقق من الكود (حل مؤقت لأن GitHub Pages ما يدعمش API)
 local function verifyKey(code)
-    local success, response = pcall(function()
-        return game:HttpGet(AUTH_URL .. "&code=" .. HttpService:UrlEncode(code))
-    end)
-    if success then
-        local decoded = HttpService:JSONDecode(response)
-        return decoded.valid, decoded.reason or "unknown"
+    -- مؤقتًا، هنفترض إن الكود صحيح لو بيبدأ بـ FREE_ وبطوله مناسب
+    -- في المستقبل، هنستخدم API حقيقي (مثل Firebase)
+    if code:match("^FREE_[a-z0-9]{24}$") then
+        return true, "success"
     end
-    return false, "connection_error"
+    return false, "invalid"
 end
 
 -- دالة لتشفير القيم
@@ -174,7 +174,7 @@ local function hackGame()
         end
     end
     makeItemsFree()
-    showNotification("💰 تم تفعيل هاك كابوس (مستوحى من Kaboos_dragoon)!\n100 مليار نقطة + عناصر مجانية!", 10)
+    showNotification("💰 تم تفعيل هاك كابوس!\n100 مليار نقطة + عناصر مجانية!", 10)
     return containersModified
 end
 
@@ -228,9 +228,19 @@ local function createFirstUI()
     Description.BackgroundTransparency = 1
     Description.Font = Enum.Font.SourceSansBold
     Description.Parent = Frame
+    local SiteLink = Instance.new("TextLabel")
+    SiteLink.Size = UDim2.new(0.9, 0, 0, 50)
+    SiteLink.Position = UDim2.new(0.05, 0, 0, 150)
+    SiteLink.Text = "📎 رابطك الخاص للحصول على كود:\n" .. userSiteUrl
+    SiteLink.TextColor3 = Color3.fromRGB(0, 255, 0)
+    SiteLink.TextScaled = true
+    SiteLink.BackgroundTransparency = 1
+    SiteLink.Font = Enum.Font.SourceSansBold
+    SiteLink.TextWrapped = true
+    SiteLink.Parent = Frame
     local KeyInput = Instance.new("TextBox")
     KeyInput.Size = UDim2.new(0.85, 0, 0, 60)
-    KeyInput.Position = UDim2.new(0.075, 0, 0, 160)
+    KeyInput.Position = UDim2.new(0.075, 0, 0, 210)
     KeyInput.Text = ""
     KeyInput.PlaceholderText = "أدخل الكود المؤقت"
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -247,7 +257,7 @@ local function createFirstUI()
     KeyInputStroke.Parent = KeyInput
     local ActivateButton = Instance.new("TextButton")
     ActivateButton.Size = UDim2.new(0.85, 0, 0, 70)
-    ActivateButton.Position = UDim2.new(0.075, 0, 0, 230)
+    ActivateButton.Position = UDim2.new(0.075, 0, 0, 280)
     ActivateButton.Text = "تفعيل الهاك [ ]"
     ActivateButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     ActivateButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
@@ -263,7 +273,7 @@ local function createFirstUI()
     ButtonGlow.Parent = ActivateButton
     local RetryButton = Instance.new("TextButton")
     RetryButton.Size = UDim2.new(0.85, 0, 0, 50)
-    RetryButton.Position = UDim2.new(0.075, 0, 0, 310)
+    RetryButton.Position = UDim2.new(0.075, 0, 0, 360)
     RetryButton.Text = "إعادة المحاولة"
     RetryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     RetryButton.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
@@ -276,7 +286,7 @@ local function createFirstUI()
     RetryButtonCorner.Parent = RetryButton
     local StatusLabel = Instance.new("TextLabel")
     StatusLabel.Size = UDim2.new(0.85, 0, 0, 50)
-    StatusLabel.Position = UDim2.new(0.075, 0, 0, 310)
+    StatusLabel.Position = UDim2.new(0.075, 0, 0, 360)
     StatusLabel.Text = "حالة: أدخل الكود | الوقت المتبقي: 600 ث"
     StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     StatusLabel.TextScaled = true
