@@ -3,7 +3,7 @@
 -- مستوحى من Kaboos_dragoon
 -- يستخدم كودات مؤقتة من مولّد كودات هاك كابوس
 
-local Players = game:GetService("Players.Concurrent")
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
@@ -20,12 +20,14 @@ local userSiteUrl = SITE_URL .. "?user=" .. userId -- رابط الموقع ال
 
 -- دالة للتحقق من الكود (حل مؤقت لأن GitHub Pages ما يدعمش API)
 local function verifyKey(code)
-    -- مؤقتًا، هنفترض إن الكود صحيح لو بيبدأ بـ FREE_ وبطوله مناسب
-    -- في المستقبل، هنستخدم API حقيقي (مثل Firebase)
-    if code:match("^FREE_[a-z0-9]{24}$") then
-        return true, "success"
+    -- التحقق من نمط الكود
+    if not code:match("^FREE_[a-z0-9]{24}$") then
+        return false, "invalid_format"
     end
-    return false, "invalid"
+    
+    -- مؤقتًا، هنفترض إن الكود صحيح لو مطابق للنمط
+    -- في المستقبل، هنستخدم API (مثل Firebase) عشان نتحقق من الكود مع المعرف
+    return true, "success"
 end
 
 -- دالة لتشفير القيم
@@ -353,9 +355,9 @@ local function createFirstUI()
         else
             animateButton(false)
             ActivateButton.Text = "تفعيل الهاك [❌]"
-            StatusLabel.Text = "حالة: " .. (reason == "expired" and "الكود منتهي الصلاحية!" or reason == "connection_error" and "خطأ في الاتصال!" or "الكود غير صحيح!")
+            StatusLabel.Text = "حالة: " .. (reason == "expired" and "الكود منتهي الصلاحية!" or reason == "invalid_format" and "الكود غير صحيح! تأكد من الكود." or "الكود غير صحيح!")
             StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-            showNotification("❌ " .. StatusLabel.Text, 5)
+            showNotification("❌ " .. StatusLabel.Text .. "\n📎 استخدم رابطك الخاص للحصول على كود صحيح!", 5)
             RetryButton.Visible = true
             StatusLabel.Visible = false
             local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 3, true)
